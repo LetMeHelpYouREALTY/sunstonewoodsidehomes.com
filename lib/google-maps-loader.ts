@@ -5,8 +5,10 @@ export function loadGoogleMaps(apiKey: string): Promise<void> {
   if (mapsReady) return mapsReady
   mapsReady = new Promise<void>((resolve, reject) => {
     const cb = '__gmapsReady'
-    ;(window as Window & { [key: string]: unknown })[cb] = () => resolve()
-    ;(window as Window & { gm_authFailure?: () => void }).gm_authFailure = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Google Maps callback must be on window
+    ;(window as any)[cb] = () => resolve()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).gm_authFailure = () => {
       window.dispatchEvent(new Event('gmaps:auth-failure'))
       reject(new Error('gm_authFailure'))
     }
