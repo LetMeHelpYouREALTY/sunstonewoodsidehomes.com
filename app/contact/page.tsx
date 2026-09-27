@@ -8,6 +8,7 @@ import {
   CONTACT_PHONE_LINK,
   SALES_HOURS,
 } from '@/lib/site'
+import { ContactForm } from '@/components/contact-form'
 import { DeferredRender } from '@/components/deferred-render'
 import { JsonLd } from '@/components/json-ld'
 import { buildBreadcrumbList } from '@/lib/structured-data'
@@ -60,68 +61,7 @@ export default function ContactPage() {
             Tell us who will be joining the journey, your target move-in date, and any must-haves.
             Dr. Duffy’s team will respond within one business day.
           </p>
-          <form
-            action={`mailto:${CONTACT_EMAIL}`}
-            method="post"
-            className="grid gap-4 text-sm text-foreground"
-          >
-            <label className="flex flex-col gap-2">
-              <span>Full name</span>
-              <input
-                name="name"
-                type="text"
-                placeholder="Alex Martinez"
-                className="rounded-lg border border-border bg-background px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                required
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span>Email</span>
-              <input
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                className="rounded-lg border border-border bg-background px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                required
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span>Phone</span>
-              <input
-                name="phone"
-                type="tel"
-                placeholder="(555) 123-4567"
-                className="rounded-lg border border-border bg-background px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span>Preferred move-in timeframe</span>
-              <select
-                name="timeline"
-                className="rounded-lg border border-border bg-background px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="next-60-days">Next 60 days</option>
-                <option value="3-6-months">3–6 months</option>
-                <option value="6-12-months">6–12 months</option>
-                <option value="research-phase">Just starting research</option>
-              </select>
-            </label>
-            <label className="flex flex-col gap-2">
-              <span>How can we help?</span>
-              <textarea
-                name="message"
-                rows={4}
-                placeholder="Tell us about the homes, floor plans, or financing guidance you need."
-                className="rounded-lg border border-border bg-background px-3 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </label>
-            <button
-              type="submit"
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-            >
-              Send concierge request
-            </button>
-          </form>
+          <ContactForm />
         </div>
         <aside className="space-y-6 rounded-3xl border border-dashed border-border/70 bg-background/60 p-6 text-sm text-muted-foreground">
           <h2 className="text-base font-semibold text-foreground">Visit the sales center</h2>
