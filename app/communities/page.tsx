@@ -3,7 +3,9 @@ import Link from 'next/link'
 
 import { CONTACT_EMAIL, CONTACT_PHONE_LINK, CONTACT_PHONE } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
+import { JsonLd } from '@/components/json-ld'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 
 export const metadata: Metadata = {
   title: 'Sunstone & Northwest Las Vegas Communities | Dr. Duffy',
@@ -70,6 +72,13 @@ const communityFaqs = getFaqsByCategory(['communities'], [1, 2, 3, 4, 5])
 export default function CommunitiesPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-communities-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Communities', path: '/communities' },
+        ])}
+      />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Community Snapshot

@@ -3,7 +3,9 @@ import Link from 'next/link'
 
 import { models } from '@/lib/models'
 import { FaqSection } from '@/components/faq-section'
+import { JsonLd } from '@/components/json-ld'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 import { CONTACT_EMAIL } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -17,6 +19,13 @@ const modelFaqs = getFaqsByCategory(['floorplans'], [1, 2, 3, 4, 5])
 export default function ModelsIndexPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-models-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Floor Plans', path: '/models' },
+        ])}
+      />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Capella Collection

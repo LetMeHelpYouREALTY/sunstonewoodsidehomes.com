@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { serviceAreas } from '@/lib/service-areas'
 import { CONTACT_EMAIL } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
+import { JsonLd } from '@/components/json-ld'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 
 export const metadata: Metadata = {
   title: 'Las Vegas Service Areas | Sunstone Woodside Neighborhood Guides',
@@ -17,6 +19,13 @@ const marketFaqs = getFaqsByCategory(['market'], [1, 2, 3, 4, 5])
 export default function ServiceAreasIndexPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-service-areas-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Service Areas', path: '/service-areas' },
+        ])}
+      />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Service Areas

@@ -2,11 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { FaqSection } from '@/components/faq-section'
+import { JsonLd } from '@/components/json-ld'
 import {
   faqCategoryMeta,
   getFaqsByCategory,
   orderedFaqCategories,
 } from '@/lib/faqs'
+import { buildBreadcrumbList, buildFaqPage } from '@/lib/structured-data'
+
+const libraryFaqs = getFaqsByCategory(orderedFaqCategories)
 
 export const metadata: Metadata = {
   title: 'Woodside Homes Las Vegas FAQs | Research Library by Dr. Duffy',
@@ -17,6 +21,14 @@ export const metadata: Metadata = {
 export default function FaqLibraryPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-faqs-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'FAQs', path: '/faqs' },
+        ])}
+      />
+      <JsonLd id="schema-faqs-page" data={buildFaqPage(libraryFaqs)} />
       <header className="space-y-6">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Woodside Knowledge Hub

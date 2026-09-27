@@ -9,6 +9,8 @@ import {
   SALES_HOURS,
 } from '@/lib/site'
 import { DeferredRender } from '@/components/deferred-render'
+import { JsonLd } from '@/components/json-ld'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 
 const reasons = [
   'Schedule a private tour of Capella model homes.',
@@ -31,6 +33,13 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-contact-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Contact', path: '/contact' },
+        ])}
+      />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Contact

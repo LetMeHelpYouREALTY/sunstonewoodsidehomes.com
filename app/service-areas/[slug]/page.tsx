@@ -1,12 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Script from 'next/script'
-
+import { JsonLd } from '@/components/json-ld'
 import { getServiceAreaBySlug, serviceAreas } from '@/lib/service-areas'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_LINK } from '@/lib/site'
-
-const baseUrl = 'https://www.sunstonewoodsidehomes.com'
 
 type ServiceAreaPageProps = {
   params: Promise<{ slug: string }>
@@ -46,36 +44,14 @@ export default async function ServiceAreaPage({ params }: ServiceAreaPageProps) 
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
-      <Script
+      <JsonLd
         id={`schema-service-area-${area.slug}`}
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Home',
-              item: `${baseUrl}/`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: 'Service Areas',
-              item: `${baseUrl}/service-areas`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: area.name,
-              item: `${baseUrl}/service-areas/${area.slug}`,
-            },
-          ],
-        })}
-      </Script>
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Service Areas', path: '/service-areas' },
+          { name: area.name, path: `/service-areas/${area.slug}` },
+        ])}
+      />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           {area.name}

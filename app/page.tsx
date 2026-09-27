@@ -3,8 +3,10 @@ import Link from 'next/link'
 
 import { models } from '@/lib/models'
 import { DeferredRender } from '@/components/deferred-render'
+import { JsonLd } from '@/components/json-ld'
 import { FaqSection } from '@/components/faq-section'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList, buildFaqPage } from '@/lib/structured-data'
 import { moveInReadyHomes } from '@/lib/move-in-ready'
 import {
   CONTACT_ADDRESS,
@@ -139,6 +141,7 @@ const realScoutLink =
   'https://drjanduffy.realscout.com/homesearch/shared-searches/U2hhcmVhYmxlU2VhcmNoTGluay0xNDE2Nw=='
 
 const homepageFaqs = getFaqsByCategory(['company'], [1, 2, 3, 4, 5])
+const homepageFaqSchema = homepageFaqs.slice(0, 6)
 
 export const metadata: Metadata = {
   title: 'Sunstone Woodside Homes | Las Vegas New Construction Concierge',
@@ -149,6 +152,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="flex flex-col gap-24 pb-16">
+      <JsonLd id="schema-home-faq" data={buildFaqPage(homepageFaqSchema)} />
       {/* Hero section - Next Step Realty style with prominent form */}
       <section className="relative bg-white pt-20 pb-16 sm:pt-24 sm:pb-20">
         <div className="mx-auto max-w-7xl px-4">
@@ -279,7 +283,7 @@ export default function HomePage() {
               <p className="text-muted-foreground">No Costs Until Success.</p>
             </div>
             <div className="space-y-3">
-              <h3 className="text-xl font-bold text-foreground">Efficiency At It's Finest</h3>
+              <h3 className="text-xl font-bold text-foreground">Efficiency At It&apos;s Finest</h3>
               <p className="text-muted-foreground">See 5-12 Curated Homes in Just 2-4 Hours.</p>
             </div>
             <div className="space-y-3">
@@ -306,7 +310,7 @@ export default function HomePage() {
             Through a comprehensive, concierge-style tour, one of our qualified agents will show you 5-12 curated homes in 2-4 hours.
           </p>
           <p className="mb-8 text-lg text-muted-foreground">
-            Providing expert guidance and a 90% success rate, we've earned the highest customer satisfaction in Las Vegas.
+            Providing expert guidance and a 90% success rate, we&apos;ve earned the highest customer satisfaction in Las Vegas.
           </p>
           <div className="space-y-2">
             <p className="text-xl font-semibold italic text-foreground">Welcome to Dr. Duffy Realty. Welcome Home.</p>
@@ -608,7 +612,7 @@ export default function HomePage() {
               Concierge guidance loved by Las Vegas homeowners
             </h2>
             <p className="text-base text-white/90">
-              Hear how Sunstone buyers leveraged Dr. Duffy's strategy, partner network, and construction monitoring to move
+              Hear how Sunstone buyers leveraged Dr. Duffy&apos;s strategy, partner network, and construction monitoring to move
               with total confidence.
             </p>
           </div>
@@ -618,7 +622,7 @@ export default function HomePage() {
                 key={testimonial.name}
                 className="h-full rounded-3xl border border-white/20 bg-white/10 p-6 text-sm text-white/95"
               >
-                <p className="italic leading-relaxed">"{testimonial.quote}"</p>
+                <p className="italic leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
                 <footer className="mt-4">
                   <p className="font-semibold text-primary-foreground">{testimonial.name}</p>
                   <p className="text-xs text-white/80">{testimonial.detail}</p>

@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 
 import { getModelBySlug, models, type ModelSlug } from '@/lib/models'
 import { CONTACT_EMAIL } from '@/lib/site'
+import { JsonLd } from '@/components/json-ld'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 
 type ModelPageProps = {
   params: Promise<{ slug: ModelSlug }>
@@ -43,6 +45,14 @@ export default async function ModelDetailPage({ params }: ModelPageProps) {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id={`schema-breadcrumb-${model.slug}`}
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Floor Plans', path: '/models' },
+          { name: model.name, path: `/models/${model.slug}` },
+        ])}
+      />
       <header className="space-y-4">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           {model.name}

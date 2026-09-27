@@ -1,15 +1,15 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Script from 'next/script'
-
+import { JsonLd } from '@/components/json-ld'
 import {
   getMoveInReadyHomeBySlug,
   moveInReadyHomes,
 } from '@/lib/move-in-ready'
+import { buildBreadcrumbList, SITE_URL } from '@/lib/structured-data'
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_LINK } from '@/lib/site'
 
-const baseUrl = 'https://www.sunstonewoodsidehomes.com'
+const baseUrl = SITE_URL
 
 const specs = (home: (typeof moveInReadyHomes)[number]) => [
   { label: 'Bedrooms', value: home.beds },
@@ -145,12 +145,9 @@ export default async function MoveInReadyDetailPage({
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-12 px-4 py-16">
-      <Script
+      <JsonLd
         id={`schema-move-in-ready-${home.slug}`}
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify({
+        data={{
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: `${home.planName} ${home.lot}`,
@@ -161,11 +158,11 @@ export default async function MoveInReadyDetailPage({
             name: 'Sunstone Woodside | Homes by Dr. Duffy',
           },
           seller: {
-              '@type': 'RealEstateAgent',
-              name: 'Dr. Duffy',
-              url: `${baseUrl}/contact`,
-              telephone: CONTACT_PHONE,
-              areaServed: ['Las Vegas NV', 'Henderson NV'],
+            '@type': 'RealEstateAgent',
+            name: 'Dr. Jan Duffy',
+            url: `${baseUrl}/contact`,
+            telephone: CONTACT_PHONE,
+            areaServed: ['Las Vegas NV', 'Henderson NV'],
           },
           offers: {
             '@type': 'Offer',
@@ -175,38 +172,16 @@ export default async function MoveInReadyDetailPage({
             url: `${baseUrl}/move-in-ready/${home.slug}`,
             itemCondition: 'https://schema.org/NewCondition',
           },
-        })}
-      </Script>
-      <Script
+        }}
+      />
+      <JsonLd
         id={`schema-breadcrumb-${home.slug}`}
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            {
-              '@type': 'ListItem',
-              position: 1,
-              name: 'Home',
-              item: `${baseUrl}/`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: 'Move-In Ready Homes',
-              item: `${baseUrl}/move-in-ready`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: `${home.planName} ${home.lot}`,
-              item: `${baseUrl}/move-in-ready/${home.slug}`,
-            },
-          ],
-        })}
-      </Script>
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Move-In Ready Homes', path: '/move-in-ready' },
+          { name: `${home.planName} ${home.lot}`, path: `/move-in-ready/${home.slug}` },
+        ])}
+      />
       <nav className="text-sm text-muted-foreground">
         <Link href="/move-in-ready" className="hover:text-primary">
           Move-In Ready

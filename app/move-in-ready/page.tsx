@@ -2,7 +2,9 @@ import type { Metadata } from 'next'
 
 import MoveInReadyBrowser from './_components/move-in-ready-browser'
 import { FaqSection } from '@/components/faq-section'
+import { JsonLd } from '@/components/json-ld'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList } from '@/lib/structured-data'
 
 export const metadata: Metadata = {
   title: 'Move-In Ready Homes | Sunstone Woodside by Dr. Duffy',
@@ -15,6 +17,13 @@ const moveInReadyFaqs = getFaqsByCategory(['specs'], [1, 2, 3, 4, 5])
 export default function MoveInReadyIndexPage() {
   return (
     <>
+      <JsonLd
+        id="schema-move-in-ready-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Move-In Ready Homes', path: '/move-in-ready' },
+        ])}
+      />
       <MoveInReadyBrowser />
       <div className="mx-auto max-w-6xl px-4 pb-16">
         <FaqSection
