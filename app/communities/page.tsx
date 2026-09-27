@@ -40,7 +40,7 @@ const communitySections = [
   {
     title: 'Beyond Sunstone',
     description:
-      'Minutes from Skye Canyon, Summerlin, and Centennial Hills, you’re positioned for top-rated schools, healthcare, entertainment, and outdoor escapes.',
+      'Minutes from Skye Canyon, Summerlin, and Centennial Hills, you’re positioned for CCSD schools, healthcare, entertainment, and outdoor escapes.',
     bullets: [
       'Mt. Charleston and Lee Canyon for skiing, hiking, and climate relief.',
       'Downtown Summerlin shopping, dining, and Golden Knights hockey.',
@@ -146,7 +146,7 @@ export default function CommunitiesPage() {
         </h2>
         <p className="mt-2">
           Choose a guided route that covers Capella at Sunstone plus nearby hotspots. Tours can be
-          tailored for families, outdoor enthusiasts, or buyers comparing school districts.
+          tailored for outdoor enthusiasts, commuters, or buyers comparing school boundaries.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <a
