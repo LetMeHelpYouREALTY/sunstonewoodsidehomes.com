@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Script from 'next/script'
 
 import { AmenityMapLazy } from '@/components/amenities/amenity-map-lazy'
+import { JsonLd } from '@/components/json-ld'
 import {
   AMENITIES_PAGE_FAQS,
   AMENITY_CONTENT_SECTIONS,
@@ -141,25 +141,11 @@ export default function AmenitiesPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
-      <Script id="schema-amenities-faq" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify(faqSchema)}
-      </Script>
-      <Script id="schema-amenities-places" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify(itemListSchema)}
-      </Script>
-      <Script
-        id="schema-amenities-breadcrumb"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(breadcrumbSchema)}
-      </Script>
-      <Script id="schema-amenities-community" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify(communityPlaceSchema)}
-      </Script>
-      <Script id="schema-amenities-agent" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify(agentSchema)}
-      </Script>
+      <JsonLd id="schema-amenities-faq" data={faqSchema} />
+      <JsonLd id="schema-amenities-places" data={itemListSchema} />
+      <JsonLd id="schema-amenities-breadcrumb" data={breadcrumbSchema} />
+      <JsonLd id="schema-amenities-community" data={communityPlaceSchema} />
+      <JsonLd id="schema-amenities-agent" data={agentSchema} />
 
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">

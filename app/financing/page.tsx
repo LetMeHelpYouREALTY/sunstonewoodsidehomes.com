@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Script from 'next/script'
-
+import { JsonLd } from '@/components/json-ld'
 import { CONTACT_EMAIL } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList, buildFaqPage } from '@/lib/structured-data'
 
 export const metadata: Metadata = {
   title: 'New Construction Financing Strategies | Sunstone Woodside',
@@ -77,6 +77,14 @@ const financingFaqs = getFaqsByCategory(['pricing'], [1, 2, 3, 4, 5])
 export default function FinancingPage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-financing-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Financing', path: '/financing' },
+        ])}
+      />
+      <JsonLd id="schema-financing-faq" data={buildFaqPage(financingFaqs.slice(0, 6))} />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Financing Strategy
@@ -195,20 +203,6 @@ export default function FinancingPage() {
         showMoreHref="/faqs#pricing"
       />
 
-      <Script id="schema-financing-faq" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: financingFaqs.map((faq) => ({
-            '@type': 'Question',
-            name: faq.question,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: faq.answer,
-            },
-          })),
-        })}
-      </Script>
     </div>
   )
 }

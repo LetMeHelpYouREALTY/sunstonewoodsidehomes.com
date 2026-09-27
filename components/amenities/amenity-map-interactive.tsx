@@ -3,16 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { AmenityMapFallback } from '@/components/amenities/amenity-map-fallback'
+import { searchCategoryPlaces } from '@/lib/amenities-places-search'
 import {
   AMENITY_CATEGORIES,
-  AMENITY_SEARCH_RADIUS_METERS,
   COMMUNITY_CENTER,
   COMMUNITY_NAME,
   COMMUNITY_STREET_ADDRESS,
+  CURATED_NEARBY_PLACES,
   GOOGLE_MAPS_API_KEY,
   GOOGLE_MAPS_MAP_ID,
+  formatPlaceAddress,
   type AmenityCategoryId,
+  type CuratedPlace,
 } from '@/lib/amenities-config'
+import { loadGoogleMaps, mapsAuthFailed } from '@/lib/google-maps-loader'
 
 type AmenityMapInteractiveProps = {
   compact?: boolean
@@ -22,13 +26,10 @@ type PlaceResult = {
   id: string
   name: string
   address: string
-  rating?: number
   lat: number
   lng: number
   directionsUrl: string
 }
-
-let mapsScriptPromise: Promise<void> | null = null
 
 function detachMarker(marker: google.maps.marker.AdvancedMarkerElement | google.maps.Marker) {
   if (marker instanceof google.maps.Marker) {
@@ -38,67 +39,97 @@ function detachMarker(marker: google.maps.marker.AdvancedMarkerElement | google.
   marker.map = null
 }
 
-function loadGoogleMapsScript(apiKey: string): Promise<void> {
-  if (typeof window === 'undefined') {
-    return Promise.reject(new Error('Google Maps can only load in the browser'))
-  }
-
-  if (typeof window.google?.maps?.importLibrary === 'function') {
-    return Promise.resolve()
-  }
-
-  if (mapsScriptPromise) {
-    return mapsScriptPromise
-  }
-
-  mapsScriptPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[data-google-maps-loader="true"]',
-    )
-    if (existing) {
-      existing.addEventListener('load', () => resolve())
-      existing.addEventListener('error', () => reject(new Error('Maps script failed')))
-      return
-    }
-
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places,marker&loading=async`
-    script.async = true
-    script.defer = true
-    script.dataset.googleMapsLoader = 'true'
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error('Maps script failed'))
-    document.head.appendChild(script)
-  })
-
-  return mapsScriptPromise
-}
-
 function buildDirectionsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+}
+
+function placeDisplayName(rawName: google.maps.places.Place['displayName']): string {
+  if (typeof rawName === 'string') {
+    return rawName
+  }
+  if (rawName && typeof rawName === 'object' && 'text' in rawName) {
+    return String((rawName as { text?: string }).text ?? 'Nearby place')
+  }
+  return 'Nearby place'
+}
+
+function curatedToPlaceResults(categoryId: AmenityCategoryId): PlaceResult[] {
+  return CURATED_NEARBY_PLACES.filter((place) => place.category === categoryId).map(
+    (place: CuratedPlace, index) => ({
+      id: `curated-${categoryId}-${index}`,
+      name: place.name,
+      address: formatPlaceAddress(place),
+      lat: COMMUNITY_CENTER.lat,
+      lng: COMMUNITY_CENTER.lng,
+      directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+        formatPlaceAddress(place),
+      )}`,
+    }),
+  )
+}
+
+function buildInfoWindowContent(place: PlaceResult): HTMLElement {
+  const root = document.createElement('div')
+  root.style.maxWidth = '240px'
+  root.style.fontFamily = 'system-ui, sans-serif'
+  root.style.fontSize = '14px'
+  root.style.lineHeight = '1.4'
+
+  const title = document.createElement('strong')
+  title.textContent = place.name
+  root.appendChild(title)
+
+  const address = document.createElement('p')
+  address.style.margin = '4px 0'
+  address.textContent = place.address
+  root.appendChild(address)
+
+  const link = document.createElement('a')
+  link.href = place.directionsUrl
+  link.target = '_blank'
+  link.rel = 'noopener noreferrer'
+  link.textContent = 'Directions'
+  root.appendChild(link)
+
+  return root
 }
 
 export function AmenityMapInteractive({ compact = false }: AmenityMapInteractiveProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<google.maps.Map | null>(null)
-  const communityMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | google.maps.Marker | null>(
-    null,
+  const communityMarkerRef = useRef<
+    google.maps.marker.AdvancedMarkerElement | google.maps.Marker | null
+  >(null)
+  const placeMarkersRef = useRef<(google.maps.marker.AdvancedMarkerElement | google.maps.Marker)[]>(
+    [],
   )
-  const placeMarkersRef = useRef<
-    (google.maps.marker.AdvancedMarkerElement | google.maps.Marker)[]
-  >([])
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
 
   const [activeCategory, setActiveCategory] = useState<AmenityCategoryId>('parks')
   const [places, setPlaces] = useState<PlaceResult[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [status, setStatus] = useState<'loading' | 'ready'>('loading')
+  const [useFallback, setUseFallback] = useState(false)
   const [searchPending, setSearchPending] = useState(false)
 
-  const clearPlaceMarkers = useCallback(() => {
+  const enterFallback = useCallback(() => {
+    clearPlaceMarkersInternal()
+    mapRef.current = null
+    if (communityMarkerRef.current) {
+      detachMarker(communityMarkerRef.current)
+      communityMarkerRef.current = null
+    }
+    setUseFallback(true)
+  }, [])
+
+  function clearPlaceMarkersInternal() {
     placeMarkersRef.current.forEach((marker) => {
       detachMarker(marker)
     })
     placeMarkersRef.current = []
+  }
+
+  const clearPlaceMarkers = useCallback(() => {
+    clearPlaceMarkersInternal()
   }, [])
 
   const showInfoWindow = useCallback(
@@ -106,16 +137,7 @@ export function AmenityMapInteractive({ compact = false }: AmenityMapInteractive
       if (!infoWindowRef.current) {
         infoWindowRef.current = new google.maps.InfoWindow()
       }
-      const ratingLine =
-        place.rating !== undefined ? `<p style="margin:4px 0">Rating: ${place.rating.toFixed(1)}</p>` : ''
-      infoWindowRef.current.setContent(
-        `<div style="max-width:240px;font-family:system-ui,sans-serif;font-size:14px;line-height:1.4">
-          <strong>${place.name}</strong>
-          ${ratingLine}
-          <p style="margin:4px 0">${place.address}</p>
-          <a href="${place.directionsUrl}" target="_blank" rel="noopener noreferrer">Directions</a>
-        </div>`,
-      )
+      infoWindowRef.current.setContent(buildInfoWindowContent(place))
       infoWindowRef.current.open({ map, anchor })
     },
     [],
@@ -166,24 +188,11 @@ export function AmenityMapInteractive({ compact = false }: AmenityMapInteractive
       setSearchPending(true)
 
       try {
-        const placesLibrary = (await google.maps.importLibrary('places')) as google.maps.PlacesLibrary
-        const center = new google.maps.LatLng(COMMUNITY_CENTER.lat, COMMUNITY_CENTER.lng)
-
-        const { places: nearbyPlaces } = await placesLibrary.Place.searchNearby({
-          fields: [
-            'displayName',
-            'formattedAddress',
-            'location',
-            'rating',
-            'googleMapsURI',
-          ],
-          locationRestriction: {
-            center,
-            radius: AMENITY_SEARCH_RADIUS_METERS,
-          },
-          includedPrimaryTypes: category.includedPrimaryTypes,
-          maxResultCount: 15,
-        })
+        const nearbyPlaces = await searchCategoryPlaces(
+          COMMUNITY_CENTER,
+          categoryId,
+          category.includedPrimaryTypes,
+        )
 
         const parsed = nearbyPlaces
           .map((place, index) => {
@@ -191,38 +200,28 @@ export function AmenityMapInteractive({ compact = false }: AmenityMapInteractive
             if (!location) {
               return null
             }
-            const lat = location.lat()
-            const lng = location.lng()
-            const rawName = place.displayName
-            const name =
-              typeof rawName === 'string'
-                ? rawName
-                : rawName && typeof rawName === 'object' && 'text' in rawName
-                  ? String((rawName as { text?: string }).text ?? 'Nearby place')
-                  : 'Nearby place'
+            const { lat, lng } = location.toJSON()
+            const name = placeDisplayName(place.displayName)
             const address = place.formattedAddress ?? ''
-            const directionsUrl =
-              place.googleMapsURI ?? buildDirectionsUrl(lat, lng)
+            const directionsUrl = place.googleMapsURI ?? buildDirectionsUrl(lat, lng)
             return {
               id: `${categoryId}-${index}-${lat}-${lng}`,
               name,
               address,
-              rating: place.rating ?? undefined,
               lat,
               lng,
               directionsUrl,
             }
           })
-          .filter((item) => item !== null)
+          .filter((item): item is PlaceResult => item !== null)
 
-        setPlaces(parsed as PlaceResult[])
-        renderPlaceMarkers(map, parsed)
+        const displayPlaces = parsed.length > 0 ? parsed : curatedToPlaceResults(categoryId)
+        setPlaces(displayPlaces)
+        renderPlaceMarkers(map, displayPlaces)
       } catch {
-        try {
-          await searchWithLegacyService(map, category.includedPrimaryTypes[0] ?? 'point_of_interest')
-        } catch {
-          setStatus('error')
-        }
+        const curated = curatedToPlaceResults(categoryId)
+        setPlaces(curated)
+        renderPlaceMarkers(map, curated)
       } finally {
         setSearchPending(false)
       }
@@ -230,70 +229,41 @@ export function AmenityMapInteractive({ compact = false }: AmenityMapInteractive
     [renderPlaceMarkers],
   )
 
-  async function searchWithLegacyService(map: google.maps.Map, type: string) {
-    const service = new google.maps.places.PlacesService(map)
-    const center = new google.maps.LatLng(COMMUNITY_CENTER.lat, COMMUNITY_CENTER.lng)
-
-    const results = await new Promise<google.maps.places.PlaceResult[]>((resolve, reject) => {
-      service.nearbySearch(
-        {
-          location: center,
-          radius: AMENITY_SEARCH_RADIUS_METERS,
-          keyword: type.replace(/_/g, ' '),
-        },
-        (found, searchStatus) => {
-          if (searchStatus === google.maps.places.PlacesServiceStatus.OK && found) {
-            resolve(found)
-            return
-          }
-          if (searchStatus === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-            resolve([])
-            return
-          }
-          reject(new Error(searchStatus))
-        },
-      )
-    })
-
-    const parsed = results
-      .map((place, index) => {
-        const location = place.geometry?.location
-        if (!location) {
-          return null
-        }
-        const lat = location.lat()
-        const lng = location.lng()
-        return {
-          id: `legacy-${index}-${lat}`,
-          name: place.name ?? 'Nearby place',
-          address: place.vicinity ?? place.formatted_address ?? '',
-          rating: place.rating ?? undefined,
-          lat,
-          lng,
-          directionsUrl: buildDirectionsUrl(lat, lng),
-        }
-      })
-      .filter((item) => item !== null) as PlaceResult[]
-
-    setPlaces(parsed)
-    renderPlaceMarkers(map, parsed)
-  }
+  useEffect(() => {
+    const onAuthFailure = () => {
+      enterFallback()
+    }
+    window.addEventListener('gmaps:auth-failure', onAuthFailure)
+    return () => window.removeEventListener('gmaps:auth-failure', onAuthFailure)
+  }, [enterFallback])
 
   useEffect(() => {
     let cancelled = false
 
     async function initMap() {
+      if (mapsAuthFailed) {
+        enterFallback()
+        return
+      }
+
       if (!mapContainerRef.current || !GOOGLE_MAPS_API_KEY) {
-        setStatus('error')
+        enterFallback()
         return
       }
 
       try {
-        await loadGoogleMapsScript(GOOGLE_MAPS_API_KEY)
-        if (cancelled || !mapContainerRef.current) {
+        await loadGoogleMaps(GOOGLE_MAPS_API_KEY)
+        if (cancelled || mapsAuthFailed) {
+          if (!cancelled) {
+            enterFallback()
+          }
+          return
+        }
+        if (!mapContainerRef.current) {
           return
         }
 
+        await google.maps.importLibrary('marker')
         const mapsLibrary = (await google.maps.importLibrary('maps')) as google.maps.MapsLibrary
         const mapOptions: google.maps.MapOptions = {
           center: COMMUNITY_CENTER,
@@ -334,7 +304,7 @@ export function AmenityMapInteractive({ compact = false }: AmenityMapInteractive
         setStatus('ready')
       } catch {
         if (!cancelled) {
-          setStatus('error')
+          enterFallback()
         }
       }
     }
@@ -348,16 +318,16 @@ export function AmenityMapInteractive({ compact = false }: AmenityMapInteractive
         detachMarker(communityMarkerRef.current)
       }
     }
-  }, [clearPlaceMarkers, compact])
+  }, [clearPlaceMarkers, compact, enterFallback])
 
   useEffect(() => {
-    if (status !== 'ready') {
+    if (status !== 'ready' || useFallback) {
       return
     }
     void searchCategory(activeCategory)
-  }, [activeCategory, searchCategory, status])
+  }, [activeCategory, searchCategory, status, useFallback])
 
-  if (status === 'error') {
+  if (useFallback) {
     return <AmenityMapFallback showCuratedList={!compact} />
   }
 

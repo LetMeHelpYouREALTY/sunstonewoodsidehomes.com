@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Script from 'next/script'
-
+import { JsonLd } from '@/components/json-ld'
 import { CONTACT_EMAIL, CONTACT_PHONE_LINK, CONTACT_PHONE } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
 import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList, buildFaqPage } from '@/lib/structured-data'
 
 export const metadata: Metadata = {
   title: 'Las Vegas New Construction Buyer Guide | Dr. Duffy',
@@ -91,6 +91,14 @@ const guideFaqs = getFaqsByCategory(['process', 'education'], [1, 2, 3, 4, 5])
 export default function BuyersGuidePage() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-16">
+      <JsonLd
+        id="schema-buyers-guide-breadcrumb"
+        data={buildBreadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Buyers Guide', path: '/buyers-guide' },
+        ])}
+      />
+      <JsonLd id="schema-buyers-guide-faq" data={buildFaqPage(faqs)} />
       <header className="space-y-4 text-center sm:text-left">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
           Buyer Journey
@@ -245,20 +253,6 @@ export default function BuyersGuidePage() {
         </div>
       </section>
 
-      <Script id="schema-buyers-guide-faq" type="application/ld+json" strategy="afterInteractive">
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: faqs.map((faq) => ({
-            '@type': 'Question',
-            name: faq.question,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: faq.answer,
-            },
-          })),
-        })}
-      </Script>
     </div>
   )
 }

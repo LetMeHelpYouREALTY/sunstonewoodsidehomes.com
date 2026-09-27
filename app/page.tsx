@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { FindYourHomeForm } from '@/components/find-your-home-form'
 import { models } from '@/lib/models'
 import { DeferredRender } from '@/components/deferred-render'
+import { JsonLd } from '@/components/json-ld'
 import { FaqSection } from '@/components/faq-section'
 import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { getFaqsByCategory } from '@/lib/faqs'
+import { buildBreadcrumbList, buildFaqPage } from '@/lib/structured-data'
 import { moveInReadyHomes } from '@/lib/move-in-ready'
 import {
   CONTACT_ADDRESS,
@@ -140,6 +143,7 @@ const realScoutLink =
   'https://drjanduffy.realscout.com/homesearch/shared-searches/U2hhcmVhYmxlU2VhcmNoTGluay0xNDE2Nw=='
 
 const homepageFaqs = getFaqsByCategory(['company'], [1, 2, 3, 4, 5])
+const homepageFaqSchema = homepageFaqs.slice(0, 6)
 
 export const metadata: Metadata = {
   title: 'Sunstone Woodside Homes | Las Vegas New Construction Concierge',
@@ -150,6 +154,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="flex flex-col gap-24 pb-16">
+      <JsonLd id="schema-home-faq" data={buildFaqPage(homepageFaqSchema)} />
       {/* Hero section - Next Step Realty style with prominent form */}
       <section className="relative bg-white pt-20 pb-16 sm:pt-24 sm:pb-20">
         <div className="mx-auto max-w-7xl px-4">
@@ -190,65 +195,7 @@ export default function HomePage() {
             <div className="lg:sticky lg:top-24 lg:h-fit">
               <div className="rounded-lg border border-border bg-card p-6 shadow-lg">
                 <h2 className="mb-6 text-2xl font-bold text-foreground">Find Your Home</h2>
-                <form
-                  action={`mailto:${CONTACT_EMAIL}`}
-                  method="post"
-                  className="space-y-4"
-                >
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-foreground">First Name *</span>
-                      <input
-                        name="firstName"
-                        type="text"
-                        required
-                        className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                    </label>
-                    <label className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-foreground">Last Name *</span>
-                      <input
-                        name="lastName"
-                        type="text"
-                        required
-                        className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                    </label>
-                  </div>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-foreground">Email *</span>
-                    <input
-                      name="email"
-                      type="email"
-                      required
-                      className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-foreground">Phone Number *</span>
-                    <input
-                      name="phone"
-                      type="tel"
-                      required
-                      className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-foreground">Move-In Timeline</span>
-                    <input
-                      name="moveInDate"
-                      type="text"
-                      placeholder="e.g., Spring 2026, Fall 2026"
-                      className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </label>
-                  <button
-                    type="submit"
-                    className="w-full rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition hover:bg-primary-hover"
-                  >
-                    SIGN UP
-                  </button>
-                </form>
+                <FindYourHomeForm />
               </div>
             </div>
           </div>
@@ -280,7 +227,7 @@ export default function HomePage() {
               <p className="text-muted-foreground">No Costs Until Success.</p>
             </div>
             <div className="space-y-3">
-              <h3 className="text-xl font-bold text-foreground">Efficiency At It's Finest</h3>
+              <h3 className="text-xl font-bold text-foreground">Efficiency At It&apos;s Finest</h3>
               <p className="text-muted-foreground">See 5-12 Curated Homes in Just 2-4 Hours.</p>
             </div>
             <div className="space-y-3">
@@ -307,7 +254,7 @@ export default function HomePage() {
             Through a comprehensive, concierge-style tour, one of our qualified agents will show you 5-12 curated homes in 2-4 hours.
           </p>
           <p className="mb-8 text-lg text-muted-foreground">
-            Providing expert guidance and a 90% success rate, we've earned the highest customer satisfaction in Las Vegas.
+            Providing expert guidance and a 90% success rate, we&apos;ve earned the highest customer satisfaction in Las Vegas.
           </p>
           <div className="space-y-2">
             <p className="text-xl font-semibold italic text-foreground">Welcome to Dr. Duffy Realty. Welcome Home.</p>
@@ -611,7 +558,7 @@ export default function HomePage() {
               Concierge guidance loved by Las Vegas homeowners
             </h2>
             <p className="text-base text-white/90">
-              Hear how Sunstone buyers leveraged Dr. Duffy's strategy, partner network, and construction monitoring to move
+              Hear how Sunstone buyers leveraged Dr. Duffy&apos;s strategy, partner network, and construction monitoring to move
               with total confidence.
             </p>
           </div>
@@ -621,7 +568,7 @@ export default function HomePage() {
                 key={testimonial.name}
                 className="h-full rounded-3xl border border-white/20 bg-white/10 p-6 text-sm text-white/95"
               >
-                <p className="italic leading-relaxed">"{testimonial.quote}"</p>
+                <p className="italic leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
                 <footer className="mt-4">
                   <p className="font-semibold text-primary-foreground">{testimonial.name}</p>
                   <p className="text-xs text-white/80">{testimonial.detail}</p>

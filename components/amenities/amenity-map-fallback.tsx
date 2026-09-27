@@ -35,8 +35,7 @@ export function AmenityMapFallback({
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Interactive amenity search loads when a Google Maps API key is configured. Center:{' '}
-        {COMMUNITY_CENTER.lat.toFixed(5)}, {COMMUNITY_CENTER.lng.toFixed(5)} (
+        Map centered on the Capella sales office (
         <a
           href={directionsUrlForCommunity()}
           className="font-semibold text-primary underline-offset-2 hover:underline"

@@ -124,6 +124,7 @@ export type CuratedPlace = {
   addressLocality: string
   addressRegion: string
   postalCode: string
+  sourceUrl: string
   schemaType:
     | 'Restaurant'
     | 'CafeOrCoffeeShop'
@@ -146,16 +147,19 @@ export const CURATED_NEARBY_PLACES: CuratedPlace[] = [
     addressLocality: 'Las Vegas',
     addressRegion: 'NV',
     postalCode: '89166',
+    sourceUrl:
+      'https://www.smithsfoodanddrug.com/stores/grocery/nv/las-vegas/skye-canyon-marketplace/706/00367',
     schemaType: 'GroceryStore',
     note: 'Full grocery, home goods, and in-store pharmacy at Skye Canyon Marketplace.',
   },
   {
     name: 'Centennial Hills Hospital Medical Center',
     category: 'healthcare',
-    streetAddress: '657 N Town Center Dr',
+    streetAddress: '6900 N Durango Dr',
     addressLocality: 'Las Vegas',
     addressRegion: 'NV',
-    postalCode: '89144',
+    postalCode: '89149',
+    sourceUrl: 'https://www.centennialhillshospital.com/patients-visitors/maps-directions',
     schemaType: 'Hospital',
   },
   {
@@ -165,34 +169,38 @@ export const CURATED_NEARBY_PLACES: CuratedPlace[] = [
     addressLocality: 'Las Vegas',
     addressRegion: 'NV',
     postalCode: '89131',
+    sourceUrl: 'https://www.lasvegasnevada.gov/Residents/Parks-Facilities/Floyd-Lamb-Park',
     schemaType: 'Park',
-    note: 'Trails, picnic areas, and open desert scenery a short drive from Sunstone.',
+    note: 'City park with trails, picnic areas, and fishing ponds a short drive from Sunstone.',
   },
   {
     name: 'William & Mary Scherkenbach Elementary School',
     category: 'schools',
-    streetAddress: '9650 W Mabel Ave',
+    streetAddress: '9371 Iron Mountain Rd',
     addressLocality: 'Las Vegas',
     addressRegion: 'NV',
-    postalCode: '89149',
+    postalCode: '89143',
+    sourceUrl: 'https://williamandmaryscherkenbaches.ccsd.net/contact-us',
     schemaType: 'School',
   },
   {
     name: 'Arbor View High School',
     category: 'schools',
-    streetAddress: '8100 Westward Ho Ave',
+    streetAddress: '7500 Whispering Sands Dr',
     addressLocality: 'Las Vegas',
     addressRegion: 'NV',
-    postalCode: '89149',
+    postalCode: '89131',
+    sourceUrl: 'https://www.arborviewhs.org/apps/contact/',
     schemaType: 'School',
   },
   {
     name: 'Angel Park Golf Club',
     category: 'golf',
-    streetAddress: '1001 S Angel Park Dr',
+    streetAddress: '100 S Rampart Blvd',
     addressLocality: 'Las Vegas',
     addressRegion: 'NV',
-    postalCode: '89128',
+    postalCode: '89145',
+    sourceUrl: 'https://arcisgolf.com/clubs/angel-park-golf-club/hours-and-directions',
     schemaType: 'GolfCourse',
   },
 ]
@@ -232,7 +240,7 @@ export const AMENITIES_PAGE_FAQS = [
   {
     question: 'Are there hospitals near Sunstone?',
     answer:
-      'Centennial Hills Hospital Medical Center on Town Center Drive in Centennial Hills is the primary acute-care hospital serving the northwest Las Vegas corridor near Sunstone.',
+      'Centennial Hills Hospital Medical Center at 6900 N Durango Dr serves the northwest Las Vegas corridor near Sunstone for acute-care needs.',
   },
   {
     question: 'What parks and outdoor recreation are close to Sunstone?',

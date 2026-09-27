@@ -31,7 +31,7 @@ export function DeferredRender({
     const element = containerRef.current
 
     if (!element || typeof IntersectionObserver === 'undefined') {
-      setIsVisible(true)
+      queueMicrotask(() => setIsVisible(true))
       return
     }
 
