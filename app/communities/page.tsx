@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { CONTACT_EMAIL, CONTACT_PHONE_LINK, CONTACT_PHONE } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { JsonLd } from '@/components/json-ld'
 import { getFaqsByCategory } from '@/lib/faqs'
 import { buildBreadcrumbList } from '@/lib/structured-data'
@@ -39,7 +40,7 @@ const communitySections = [
   {
     title: 'Beyond Sunstone',
     description:
-      'Minutes from Skye Canyon, Summerlin, and Centennial Hills, you’re positioned for top-rated schools, healthcare, entertainment, and outdoor escapes.',
+      'Minutes from Skye Canyon, Summerlin, and Centennial Hills, you’re positioned for CCSD schools, healthcare, entertainment, and outdoor escapes.',
     bullets: [
       'Mt. Charleston and Lee Canyon for skiing, hiking, and climate relief.',
       'Downtown Summerlin shopping, dining, and Golden Knights hockey.',
@@ -134,13 +135,18 @@ export default function CommunitiesPage() {
         </ul>
       </section>
 
+      <AmenityMapSection
+        title="What's nearby Capella at Sunstone"
+        description="Filter restaurants, parks, grocery, healthcare, and schools around the sales center, then dive into the full amenities guide."
+      />
+
       <section className="rounded-3xl border border-dashed border-border/70 bg-background/50 p-8 text-sm text-muted-foreground">
         <h2 className="text-base font-semibold text-foreground">
           Ready for a neighborhood preview tour?
         </h2>
         <p className="mt-2">
           Choose a guided route that covers Capella at Sunstone plus nearby hotspots. Tours can be
-          tailored for families, outdoor enthusiasts, or buyers comparing school districts.
+          tailored for outdoor enthusiasts, commuters, or buyers comparing school boundaries.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <a

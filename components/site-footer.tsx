@@ -14,6 +14,7 @@ const footerNav = [
   { href: '/buyers-guide', label: 'Buyer Journey' },
   { href: '/service-areas', label: 'Service Areas' },
   { href: '/communities', label: 'Communities' },
+  { href: '/amenities', label: 'Nearby Amenities' },
   { href: '/financing', label: 'Financing' },
   { href: '/contact', label: 'Contact' },
 ]

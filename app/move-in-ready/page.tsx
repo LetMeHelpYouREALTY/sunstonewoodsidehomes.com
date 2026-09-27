@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import MoveInReadyBrowser from './_components/move-in-ready-browser'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { FaqSection } from '@/components/faq-section'
 import { JsonLd } from '@/components/json-ld'
 import { getFaqsByCategory } from '@/lib/faqs'
@@ -26,6 +27,11 @@ export default function MoveInReadyIndexPage() {
       />
       <MoveInReadyBrowser />
       <div className="mx-auto max-w-6xl px-4 pb-16">
+        <AmenityMapSection
+          compact
+          title="Amenities near move-in ready homes"
+          description="See what sits within a short drive of Sunstone, Cadence, and Summerlin inventory before you tour."
+        />
         <FaqSection
           title="Woodside Specification & Technology FAQs"
           faqs={moveInReadyFaqs}

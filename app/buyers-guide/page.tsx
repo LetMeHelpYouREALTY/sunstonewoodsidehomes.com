@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { JsonLd } from '@/components/json-ld'
 import { CONTACT_EMAIL, CONTACT_PHONE_LINK, CONTACT_PHONE } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { getFaqsByCategory } from '@/lib/faqs'
 import { buildBreadcrumbList, buildFaqPage } from '@/lib/structured-data'
 
@@ -217,6 +218,11 @@ export default function BuyersGuidePage() {
           </Link>
         </div>
       </section>
+
+      <AmenityMapSection
+        title="Map daily life near Sunstone"
+        description="Preview grocery, healthcare, parks, and schools around Capella while you compare communities and plans."
+      />
 
       <FaqSection
         title="Woodside Buying Process & Buyer Education FAQs"
