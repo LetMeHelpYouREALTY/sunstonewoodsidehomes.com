@@ -9,6 +9,7 @@ import {
   SALES_HOURS,
 } from '@/lib/site'
 import { DeferredRender } from '@/components/deferred-render'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 
 const reasons = [
   'Schedule a private tour of Capella model homes.',
@@ -179,6 +180,12 @@ export default function ContactPage() {
           </div>
         </aside>
       </section>
+
+      <AmenityMapSection
+        compact
+        title="What's near the Capella sales center"
+        description="Explore restaurants, parks, grocery, and healthcare around Sunstone before you book a tour."
+      />
     </div>
   )
 }

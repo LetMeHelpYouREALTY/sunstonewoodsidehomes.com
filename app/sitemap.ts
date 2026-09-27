@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/move-in-ready',
     '/buyers-guide',
     '/communities',
+    '/amenities',
     '/service-areas',
     '/financing',
     '/contact',

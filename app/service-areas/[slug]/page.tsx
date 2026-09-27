@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Script from 'next/script'
 
 import { getServiceAreaBySlug, serviceAreas } from '@/lib/service-areas'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { CONTACT_EMAIL, CONTACT_PHONE, CONTACT_PHONE_LINK } from '@/lib/site'
 
 const baseUrl = 'https://www.sunstonewoodsidehomes.com'
@@ -191,6 +192,14 @@ export default async function ServiceAreaPage({ params }: ServiceAreaPageProps) 
           </Link>
         </div>
       </section>
+
+      {slug === 'capella-at-sunstone' || slug === 'sunstone-master-plan' ? (
+        <AmenityMapSection
+          compact
+          title={`Amenities near ${area.name}`}
+          description="Switch categories to see parks, grocery, healthcare, and schools within a short drive of the Capella sales center."
+        />
+      ) : null}
     </div>
   )
 }

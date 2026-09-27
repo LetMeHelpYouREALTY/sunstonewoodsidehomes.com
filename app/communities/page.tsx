@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { CONTACT_EMAIL, CONTACT_PHONE_LINK, CONTACT_PHONE } from '@/lib/site'
 import { FaqSection } from '@/components/faq-section'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { getFaqsByCategory } from '@/lib/faqs'
 
 export const metadata: Metadata = {
@@ -124,6 +125,11 @@ export default function CommunitiesPage() {
           ))}
         </ul>
       </section>
+
+      <AmenityMapSection
+        title="What's nearby Capella at Sunstone"
+        description="Filter restaurants, parks, grocery, healthcare, and schools around the sales center, then dive into the full amenities guide."
+      />
 
       <section className="rounded-3xl border border-dashed border-border/70 bg-background/50 p-8 text-sm text-muted-foreground">
         <h2 className="text-base font-semibold text-foreground">

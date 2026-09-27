@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { models } from '@/lib/models'
 import { DeferredRender } from '@/components/deferred-render'
 import { FaqSection } from '@/components/faq-section'
+import { AmenityMapSection } from '@/components/amenities/amenity-map-section'
 import { getFaqsByCategory } from '@/lib/faqs'
 import { moveInReadyHomes } from '@/lib/move-in-ready'
 import {
@@ -131,7 +132,7 @@ const resourceHighlights = [
   {
     title: 'Community Preview',
     description: 'Discover lifestyle perks, trail maps, and nearby amenities for Sunstone living.',
-    href: '/communities',
+    href: '/amenities',
   },
 ]
 
@@ -597,6 +598,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <AmenityMapSection />
 
       <section className="bg-gradient-to-br from-primary via-primary-hover to-[#004494] py-20 text-primary-foreground">
         <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 lg:flex-row lg:items-center">

@@ -162,6 +162,15 @@ export default function RootLayout({
               { '@type': 'City', name: 'Las Vegas', addressRegion: 'NV', addressCountry: 'US' },
               { '@type': 'City', name: 'Henderson', addressRegion: 'NV', addressCountry: 'US' },
               { '@type': 'City', name: 'North Las Vegas', addressRegion: 'NV', addressCountry: 'US' },
+              {
+                '@type': 'Place',
+                name: 'Capella at Sunstone',
+                geo: {
+                  '@type': 'GeoCoordinates',
+                  latitude: 36.33386,
+                  longitude: -115.30462,
+                },
+              },
             ],
             knowsAbout: [
               'Sunstone new construction homes',

@@ -8,6 +8,7 @@ const navItems = [
   { href: '/move-in-ready', label: 'Move-In Ready' },
   { href: '/buyers-guide', label: 'Buyer Journey' },
   { href: '/communities', label: 'Communities' },
+  { href: '/amenities', label: 'Nearby Amenities' },
   { href: '/service-areas', label: 'Service Areas' },
   { href: '/financing', label: 'Financing' },
   { href: '/contact', label: 'Contact' },
