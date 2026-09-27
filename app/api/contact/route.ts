@@ -1,16 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { submitFollowUpBossEvent, splitFullName } from '@/lib/fub-events'
+import {
+  splitFullName,
+  submitFollowUpBossEvent,
+  type FubEventType,
+} from '@/lib/fub-events'
 
-const FORM_NAME = 'Concierge request form'
+type LeadFormKey = 'concierge' | 'find-your-home'
 
 type ContactBody = {
+  form?: string
   name?: string
+  firstName?: string
+  lastName?: string
   email?: string
   phone?: string
   timeline?: string
+  moveInDate?: string
   message?: string
   sourceUrl?: string
+}
+
+type LeadFormConfig = {
+  formName: string
+  description: string
+  fubType: FubEventType
+  buildMessage: (body: ContactBody) => string
+}
+
+const timelineLabels: Record<string, string> = {
+  'next-60-days': 'Next 60 days',
+  '3-6-months': '3–6 months',
+  '6-12-months': '6–12 months',
+  'research-phase': 'Just starting research',
+}
+
+const LEAD_FORMS: Record<LeadFormKey, LeadFormConfig> = {
+  concierge: {
+    formName: 'Concierge request form',
+    description: 'Concierge request form — Contact',
+    fubType: 'General Inquiry',
+    buildMessage: buildConciergeMessage,
+  },
+  'find-your-home': {
+    formName: 'Find Your Home form',
+    description: 'Find Your Home form - homepage',
+    fubType: 'Property Inquiry',
+    buildMessage: buildFindYourHomeMessage,
+  },
 }
 
 function validationError(message: string) {
@@ -24,24 +61,50 @@ function parseContactBody(raw: unknown): ContactBody | null {
   return raw as ContactBody
 }
 
-function hasRequiredContactFields(body: ContactBody): boolean {
-  const name = typeof body.name === 'string' ? body.name.trim() : ''
-  const email = typeof body.email === 'string' ? body.email.trim() : ''
-  const phone = typeof body.phone === 'string' ? body.phone.trim() : ''
-  if (!name) {
-    return false
+function resolveFormKey(raw: string | undefined): LeadFormKey {
+  if (raw === 'find-your-home') {
+    return 'find-your-home'
   }
-  return Boolean(email || phone)
+  return 'concierge'
 }
 
-const timelineLabels: Record<string, string> = {
-  'next-60-days': 'Next 60 days',
-  '3-6-months': '3–6 months',
-  '6-12-months': '6–12 months',
-  'research-phase': 'Just starting research',
+function resolvePerson(body: ContactBody): {
+  firstName: string
+  lastName: string
+  email?: string
+  phone?: string
+} | null {
+  const email =
+    typeof body.email === 'string' && body.email.trim()
+      ? body.email.trim()
+      : undefined
+  const phone =
+    typeof body.phone === 'string' && body.phone.trim()
+      ? body.phone.trim()
+      : undefined
+
+  const firstRaw =
+    typeof body.firstName === 'string' ? body.firstName.trim() : ''
+  const lastRaw =
+    typeof body.lastName === 'string' ? body.lastName.trim() : ''
+
+  if (firstRaw) {
+    if (!email && !phone) {
+      return null
+    }
+    return { firstName: firstRaw, lastName: lastRaw, email, phone }
+  }
+
+  const name = typeof body.name === 'string' ? body.name.trim() : ''
+  if (!name || (!email && !phone)) {
+    return null
+  }
+
+  const { firstName, lastName } = splitFullName(name)
+  return { firstName, lastName, email, phone }
 }
 
-function buildMessage(body: ContactBody): string {
+function buildConciergeMessage(body: ContactBody): string {
   const parts: string[] = []
   const visitorMessage =
     typeof body.message === 'string' ? body.message.trim() : ''
@@ -59,6 +122,15 @@ function buildMessage(body: ContactBody): string {
   return parts.join('\n\n') || 'Concierge contact request'
 }
 
+function buildFindYourHomeMessage(body: ContactBody): string {
+  const moveIn =
+    typeof body.moveInDate === 'string' ? body.moveInDate.trim() : ''
+  if (moveIn) {
+    return `Move-in timeline: ${moveIn}\n\nHome search request from Find Your Home form.`
+  }
+  return 'Home search request from Find Your Home form.'
+}
+
 export async function POST(request: NextRequest) {
   let raw: unknown
   try {
@@ -72,30 +144,31 @@ export async function POST(request: NextRequest) {
     return validationError('Invalid request body')
   }
 
-  if (!hasRequiredContactFields(body)) {
+  const person = resolvePerson(body)
+  if (!person) {
     return validationError('Name and either email or phone are required')
   }
+
+  const formKey = resolveFormKey(
+    typeof body.form === 'string' ? body.form : undefined,
+  )
+  const formConfig = LEAD_FORMS[formKey]
 
   const referer = request.headers.get('referer') ?? ''
   const sourceUrl =
     (typeof body.sourceUrl === 'string' && body.sourceUrl.trim()) || referer
 
-  const name = body.name!.trim()
-  const email = typeof body.email === 'string' ? body.email.trim() : undefined
-  const phone = typeof body.phone === 'string' ? body.phone.trim() : undefined
-  const { firstName, lastName } = splitFullName(name)
-
   const result = await submitFollowUpBossEvent({
-    type: 'General Inquiry',
-    message: buildMessage(body),
-    description: `${FORM_NAME} — Contact`,
+    type: formConfig.fubType,
+    message: formConfig.buildMessage(body),
+    description: formConfig.description,
     sourceUrl,
     person: {
-      firstName,
-      lastName,
-      email,
-      phone,
-      formName: FORM_NAME,
+      firstName: person.firstName,
+      lastName: person.lastName,
+      email: person.email,
+      phone: person.phone,
+      formName: formConfig.formName,
     },
   })
 

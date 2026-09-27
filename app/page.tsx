@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { FindYourHomeForm } from '@/components/find-your-home-form'
 import { models } from '@/lib/models'
 import { DeferredRender } from '@/components/deferred-render'
 import { JsonLd } from '@/components/json-ld'
@@ -193,65 +194,7 @@ export default function HomePage() {
             <div className="lg:sticky lg:top-24 lg:h-fit">
               <div className="rounded-lg border border-border bg-card p-6 shadow-lg">
                 <h2 className="mb-6 text-2xl font-bold text-foreground">Find Your Home</h2>
-                <form
-                  action={`mailto:${CONTACT_EMAIL}`}
-                  method="post"
-                  className="space-y-4"
-                >
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-foreground">First Name *</span>
-                      <input
-                        name="firstName"
-                        type="text"
-                        required
-                        className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                    </label>
-                    <label className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-foreground">Last Name *</span>
-                      <input
-                        name="lastName"
-                        type="text"
-                        required
-                        className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                    </label>
-                  </div>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-foreground">Email *</span>
-                    <input
-                      name="email"
-                      type="email"
-                      required
-                      className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-foreground">Phone Number *</span>
-                    <input
-                      name="phone"
-                      type="tel"
-                      required
-                      className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-foreground">Move-In Timeline</span>
-                    <input
-                      name="moveInDate"
-                      type="text"
-                      placeholder="e.g., Spring 2026, Fall 2026"
-                      className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    />
-                  </label>
-                  <button
-                    type="submit"
-                    className="w-full rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-sm transition hover:bg-primary-hover"
-                  >
-                    SIGN UP
-                  </button>
-                </form>
+                <FindYourHomeForm />
               </div>
             </div>
           </div>

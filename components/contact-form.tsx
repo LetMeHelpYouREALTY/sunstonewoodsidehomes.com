@@ -2,11 +2,13 @@
 
 import { useState, type FormEvent } from 'react'
 
-import { CONTACT_PHONE } from '@/lib/site'
+import { LeadFormAlerts } from '@/components/lead-form-alerts'
+import { postLeadForm } from '@/lib/lead-form-client'
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
 
-const errorMessage = `Sorry, something went wrong sending your message. Please call or text Dr. Jan Duffy at ${CONTACT_PHONE}.`
+const successMessage =
+  "Thank you — your concierge request was sent. Dr. Duffy's team will respond within one business day."
 
 export function ContactForm() {
   const [status, setStatus] = useState<FormStatus>('idle')
@@ -19,6 +21,7 @@ export function ContactForm() {
     const formData = new FormData(form)
 
     const payload = {
+      form: 'concierge',
       name: String(formData.get('name') ?? '').trim(),
       email: String(formData.get('email') ?? '').trim(),
       phone: String(formData.get('phone') ?? '').trim(),
@@ -29,18 +32,12 @@ export function ContactForm() {
     }
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      if (response.ok) {
+      const ok = await postLeadForm(payload)
+      if (ok) {
         setStatus('success')
         form.reset()
         return
       }
-
       setStatus('error')
     } catch {
       setStatus('error')
@@ -49,23 +46,7 @@ export function ContactForm() {
 
   return (
     <div className="space-y-4">
-      {status === 'success' ? (
-        <p
-          className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground"
-          role="status"
-        >
-          Thank you — your concierge request was sent. Dr. Duffy&apos;s team will
-          respond within one business day.
-        </p>
-      ) : null}
-      {status === 'error' ? (
-        <p
-          className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-foreground"
-          role="alert"
-        >
-          {errorMessage}
-        </p>
-      ) : null}
+      <LeadFormAlerts status={status} successMessage={successMessage} />
       <form
         onSubmit={handleSubmit}
         className="grid gap-4 text-sm text-foreground"
